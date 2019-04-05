@@ -82,15 +82,15 @@ function [B,N] = calcBases(A,n,m,basics,nonbasics)
 %the coefficient matrix A correspond to the nonbasic variables and puts them
 %in a matrix N. Returns B and N.
 %
-B = []; % basis
+B = zeros(m,m); % basis
 for i=1:m
-    B = [B,A(:,basics(i))];
+    B(:,i) = A(:,basics(i));
 end
 %B
 %nonbasis
-N = [];
+N = zeros(m,n-m);
 for i=1:n-m
-    N = [N,A(:,nonbasics(i))];
+    N(:,i) = A(:,nonbasics(i));
 end
 %N
 end
@@ -104,8 +104,8 @@ function [c_B,c_N] = calcObj(c,n,m,basics,nonbasics)
 %in a vector c_b and then takes the coefficients (from the objective function) corresponding to the
 %nonbasic variables and puts them in a vector c_N. Returns the two vectors c_B and c_N.
 %
-c_B = [];
-c_N = [];
+c_B = zeros(m,1);
+c_N = zeros(n-m,1);
 for i=1:m
     c_B(i,1) = c(basics(i),1);
 end
@@ -130,8 +130,8 @@ function final_sol = simplex_solve(c,A,b,n,m)
 % initial solution is the origin
 sol = calcOrigin(b,n,m);
 
-basics = [n-m+1:n]; %indices of m basic vars
-nonbasics = [1:n-m]; %indices of n-m nonbasic vars
+basics = (n-m+1:n); %indices of m basic vars
+nonbasics = (1:n-m); %indices of n-m nonbasic vars
 
 % basis B and nullspace N
 [B,N] = calcBases(A,n,m,basics,nonbasics);
@@ -182,14 +182,13 @@ while true
             delta_max = min(step_sizes(step_sizes > 0)); % only for step_size > 0
             
             for i=1:m
-                if step_sizes(i) == delta_max;
+                if step_sizes(i) == delta_max
                    leaving = i;
                    break;
                 end
             end
             
             entering_var = nonbasics(entering);
-            leaving_var = basics(leaving);
             
             temp = zeros(n,1);
             temp(entering_var,1) = delta_max; % entering variable
