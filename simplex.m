@@ -3,27 +3,16 @@
 %A = [4,6,1,0,0; 2,6,0,1,0; 0,1,0,0,1];
 %b = [120;72;10];
 %% test case 2 (ex 8.1 from textbook)
-% c = [13;5;0;0;0];
-% A = [4,1,1,0,0;1,3,0,1,0;3,2,0,0,1];
-% b = [24;24;23];
-% Simplex(c,A,b)
-%%
-
-%
-% simplex
-% ---------
-% c = (n x 1 column vector)
-% A = (m x n matrix)
-% b = (m x 1 column vector)
-%
-% USEAGE: [sol,val] = simplex(c,A,b)
-%
-function [sol,val] = Simplex(c,A,b)
+%c = [13;5;0;0;0];
+%A = [4,1,1,0,0;1,3,0,1,0;3,2,0,0,1];
+%b = [24;24;23];
+%simplex(c,A,b)
+function [sol,val] = simplex(c,A,b)
 %SIMPLEX Uses the simplex algorithm to solve an input linear program. User
 %must input a vector c, matrix A, and vector b. If the linear program
 %inputs are not valid an error message will be given.
 %
-% sol = simplex(c,A,b) returns the optimal solution (as a vector) to the given linear
+% [sol,val] = SIMPLEX(c,A,b) returns the optimal solution and optimal value (as a vector) to the given linear
 %
 %A vector c that represents the vector of coefficients of the objective function of
 %the linear program
@@ -33,8 +22,8 @@ function [sol,val] = Simplex(c,A,b)
 %A vector b that represents a vector of scalars that represents the right hand side
 %to the coefficient matrix of the linear program
 %
-%   See also solve
-%
+%   See also SIMPLEX>SIMPLEX_SOLVE
+
 dim_c = size(c); % expected: [n,1]
 dim_A = size(A); % expected: [m,n]
 dim_b = size(b); % expected: [m,1]
@@ -45,7 +34,7 @@ if isCompat(dim_c,dim_A,dim_b)
     m = dim_A(1);
     n = dim_A(2);
     
-    sol = solve(c,A,b,n,m);
+    sol = simplex_solve(c,A,b,n,m);
     % optimal value calculation
     val = dot(sol,transpose(c));
 else
@@ -58,9 +47,9 @@ end
 function bool = isCompat(dim_c,dim_A,dim_b)
 %ISCOMPAT checks dimension compatibility of input matrix & vectors
 %
-% bool = isCompact(dim_c, dim_A, dim_b) determines the dimensions compatibility
+% bool = ISCOMPAT(dim_c, dim_A, dim_b) determines the dimensions compatibility
 %and returns whether it is true or false if the dimensions of
-% the input vectors c, and b, and the matrix A are compatible. 
+%the input vectors c, and b, and the matrix A are compatible. 
 %
 %expected dimensions of c are: [n,1]
 %expected dimensions of A are: [m,n]
@@ -73,7 +62,7 @@ end
 function origin = calcOrigin(b,n,m)
 %CALCORIGIN  computes the origin of the linear program
 %
-%origin = calcOrigin(b,n,m) looks at the vector b and determines/returns the origin of the linear program
+% origin = CALCORIGIN(b,n,m) looks at the vector b and determines/returns the origin of the linear program
 %
 origin = zeros(n,1); % first n-m are zero
 for i = (n-m+1):n
@@ -87,9 +76,9 @@ end
 function [B,N] = calcBases(A,n,m,basics,nonbasics)
 %CALCBASES calculates basis B and matrix N given input arguments
 %
-% [B, N] = calcBases(A,n,m, basics, nonbasics) determines which 
-% coefficients from the coefficient matrix A corresponds to the basic
-% variables puts them in a matrix B  and determines which b coefficients from 
+% [B, N] = CALCBASES(A,n,m, basics, nonbasics) determines which 
+%coefficients from the coefficient matrix A corresponds to the basic
+%variables puts them in a matrix B  and determines which b coefficients from 
 %the coefficient matrix A correspond to the nonbasic variables and puts them
 %in a matrix N. Returns B and N.
 %
@@ -108,13 +97,11 @@ end
 
 
 function [c_B,c_N] = calcObj(c,n,m,basics,nonbasics)
-%CALCOBJ calculates objective function with respect to basic (c_B) / nonbasic
-% variables (c_N)
+%CALCOBJ calculates objective function with respect to basic (c_B) / nonbasic variables (c_N)
 %
-%[c_B,c_N] = calcObj(c,n,m,basics,nonbasics) looks at the vector c and takes the
+% [c_B,c_N] = CALCOBJ(c,n,m,basics,nonbasics) looks at the vector c and takes the
 %coefficients (from the objective function) corresponding to the basic variables and puts them 
-%in a vector c_b and then takes the coefficients 
-%(from the objective function) corresponding to the
+%in a vector c_b and then takes the coefficients (from the objective function) corresponding to the
 %nonbasic variables and puts them in a vector c_N. Returns the two vectors c_B and c_N.
 %
 c_B = [];
@@ -130,14 +117,15 @@ end
 end
 
 
-function final_sol = solve(c,A,b,n,m)
-%SOLVE This is the main simplex algorithm
+function final_sol = simplex_solve(c,A,b,n,m)
+%SIMPLEX_SOLVE This is the main simplex algorithm
 %
-%final_sol = solve(c,A,b,n,m) This function follows and actually solbes the input program
+% final_sol = SIMPLEX_SOLVE(c,A,b,n,m) This function follows and actually solbes the input program
 %using the simplex algorithm
 %and returns the final optimal solution
+%
+%   See also SIMPLEX>CALCORIGIN, SIMPLEX>CALCBASEs, SIMPLEX>CALCOBJ
 
-%   See also calcOrigin, calcBases, calcObj
 %% Step 0: Initialization
 % initial solution is the origin
 sol = calcOrigin(b,n,m);
