@@ -15,7 +15,7 @@
 %A = [1,1,2,1,0,0;2,3,4,0,1,0;6,6,2,0,0,1]
 %b = [2;3;8]
 %%
-function [sol,val] = simplex(c,A,b)
+function [sol,val] = simplex(c,A,b,opt_plot)
 %SIMPLEX Uses the simplex algorithm to solve an input linear program. User
 %must input a vector c, matrix A, and vector b. If the linear program
 %inputs are not valid an error message will be given.
@@ -30,11 +30,25 @@ function [sol,val] = simplex(c,A,b)
 %A vector b that represents a vector of scalars that represents the right hand side
 %to the coefficient matrix of the linear program
 %
+% @MAGGIE 
+% opt_plot = true prints plot if 2 nonslack/nonsurplus decision variables
+% opt_plot = false no plot print
+% --> EXAMPLE FUNCTION CALLS WITH/WITHOUT OPT_PLOT
+% --> also update sample call up above(?)
+% ie: [sol,val] = simplex(c,A,b,true) 
+% ie: [sol,val] = simplex(c,A,b) is valid. same as [sol,val] =
+% simplex(c,A,b,false). opt_plot defaults to FALSE if not passed in 
+%
 %   See also SIMPLEX>SIMPLEX_SOLVE
 
 dim_c = size(c); % expected: [n,1]
 dim_A = size(A); % expected: [m,n]
 dim_b = size(b); % expected: [m,1]
+
+% checks for optional argument PLOT
+if nargin < 4
+    opt_plot = false;
+end
 
 % check for dimension compatibiility
 if isCompat(dim_c,dim_A,dim_b)
@@ -46,8 +60,9 @@ if isCompat(dim_c,dim_A,dim_b)
     % optimal value calculation
     val = dot(sol,transpose(c));
     
-    % plot for LP with only two non-slack and non-surplus decision variables
-    if n-m==2
+    % plot for LP with only two non-slack and non-surplus decision
+    % variables && user requests it
+    if n-m==2 && opt_plot
         % plot path for 2D LP's
         plot(histx,histy,'-mo','LineWidth',2,'MarkerEdgeColor','k','MarkerFaceColor',[.49 1 .63],'MarkerSize',5)
         hold on
