@@ -6,7 +6,15 @@
 %c = [13;5;0;0;0];
 %A = [4,1,1,0,0;1,3,0,1,0;3,2,0,0,1];
 %b = [24;24;23];
-%simplex(c,A,b)
+%% test case 3 (problem 1 part a from hw7)
+%c = [3;2;0;0]
+%A = [2,-1,1,0;2,1,0,1]
+%b = [6;10]
+%% test case 4 (problem 2 from hw7)
+%c = [8;9;5;0;0;0]
+%A = [1,1,2,1,0,0;2,3,4,0,1,0;6,6,2,0,0,1]
+%b = [2;3;8]
+%%
 function [sol,val] = simplex(c,A,b)
 %SIMPLEX Uses the simplex algorithm to solve an input linear program. User
 %must input a vector c, matrix A, and vector b. If the linear program
@@ -34,9 +42,19 @@ if isCompat(dim_c,dim_A,dim_b)
     m = dim_A(1);
     n = dim_A(2);
     
-    sol = simplex_solve(c,A,b,n,m);
+    [sol,histx,histy] = simplex_solve(c,A,b,n,m);
     % optimal value calculation
     val = dot(sol,transpose(c));
+    
+    % plot for LP with only two non-slack and non-surplus decision variables
+    if n-m==2
+        % plot path for 2D LP's
+        plot(histx,histy,'-mo','LineWidth',2,'MarkerEdgeColor','k','MarkerFaceColor',[.49 1 .63],'MarkerSize',5)
+        hold on
+        % mark the optimal solution with red star
+        plot(sol(1),sol(2),'p','MarkerSize',15,'MarkerFaceColor',[1 0 0])
+    end
+    
 else
     % throws informative error if the dimensions are not compatible
     error_msg = 'Error: Incompatible dimensions.\nMake sure the following are satisfied:\n\tsimplex(c,A,b), where\n\t\tc = (n x 1) column vector\n\t\tA = (m x n) matrix\n\t\tb = (m x 1) column vector';
@@ -117,7 +135,7 @@ end
 end
 
 
-function final_sol = simplex_solve(c,A,b,n,m)
+function [final_sol,histx,histy] = simplex_solve(c,A,b,n,m)
 %SIMPLEX_SOLVE This is the main simplex algorithm
 %
 % final_sol = SIMPLEX_SOLVE(c,A,b,n,m) This function follows and actually solbes the input program
@@ -129,6 +147,8 @@ function final_sol = simplex_solve(c,A,b,n,m)
 %% Step 0: Initialization
 % initial solution is the origin
 sol = calcOrigin(b,n,m);
+histx = 0;
+histy = 0;
 
 basics = (n-m+1:n); %indices of m basic vars
 nonbasics = (1:n-m); %indices of n-m nonbasic vars
@@ -202,6 +222,10 @@ while true
             
             % update solution
             sol = sol + temp;
+            
+            % log path of simplx method
+            histx = [histx,sol(1)];
+            histy = [histy,sol(2)];
             
             % update basic and nonbasic variables
             temp = basics(leaving);
