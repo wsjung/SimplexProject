@@ -1,4 +1,3 @@
-
 %% test case 1 (in-class example)
 %c = [2;4;0;0;0];
 %A = [4,6,1,0,0; 2,6,0,1,0; 0,1,0,0,1];
@@ -208,7 +207,7 @@ while true
         if simp_dir >= 0
             %UNBOUNDED, return an error message because linear program has
             %an infeasible solution
-            error_msg = "Error: Program is unbounded";
+            error_msg = "unbounded";
             error(sprintf(error_msg));
             return;
         else
@@ -226,13 +225,8 @@ while true
             
             entering_var = nonbasics(entering);
             
-            try
-                temp = zeros(n,1);
-                temp(entering_var,1) = delta_max; % entering variable
-            catch
-                error_msg2 = 'Error: Program is infeasible.';
-                error(sprintf(error_msg2));
-            end
+            temp = zeros(n,1);
+            temp(entering_var,1) = delta_max; % entering variable
             
             % full simplex direction
             for i=1:m
@@ -263,5 +257,3 @@ while true
     end
 end % end while %
 end % end function %
-
-  
