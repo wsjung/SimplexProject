@@ -1,33 +1,43 @@
+%% test case 1 (in-class example)
+%c = [2;4;0;0;0];
+%A = [4,6,1,0,0; 2,6,0,1,0; 0,1,0,0,1];
+%b = [120;72;10];
+%% test case 2 (ex 8.1 from textbook)
+%c = [13;5;0;0;0];
+%A = [4,1,1,0,0;1,3,0,1,0;3,2,0,0,1];
+%b = [24;24;23];
+%% test case 3 (problem 1 part a from hw7)
+%c = [3;2;0;0]
+%A = [2,-1,1,0;2,1,0,1]
+%b = [6;10]
+%% test case 4 (problem 2 from hw7)
+%c = [8;9;5;0;0;0]
+%A = [1,1,2,1,0,0;2,3,4,0,1,0;6,6,2,0,0,1]
+%b = [2;3;8]
+%%
 function [sol,val] = simplex(c,A,b,opt_plot)
 %SIMPLEX Uses the simplex algorithm to solve an input linear program. User
-% must input a vector c, matrix A, a vector b, and a true or false of whether a plot of 
-% the path the algorithm takes through the feasible region is desired (for 2-dimensinoal linear programs only).
-% If the linear program inputs are not valid (i.e. dimensions are not compatible) 
-% an error message will be given.
+%must input a vector c, matrix A, and vector b. If the linear program
+%inputs are not valid an error message will be given.
 %
-% [sol,val] = SIMPLEX(c,A,b,opt_plot) 
+% [sol,val] = SIMPLEX(c,A,b) returns the optimal solution and optimal value (as a vector) to the given linear
 %
-% The inputs required for this function are:
+%A vector c that represents the vector of coefficients of the objective function of
+%the linear program
 %
-% A vector c that represents the vector of coefficients of the objective function of
-% the linear program
+%A matrix A that represents the coefficient matrix of the linear program
 %
-% A matrix A that represents the coefficient matrix of the linear program
+%A vector b that represents a vector of scalars that represents the right hand side
+%to the coefficient matrix of the linear program
 %
-% A vector b that represents a vector of scalars that represents the right hand side
-% to the coefficient matrix of the linear program
-%
-% An input of opt_plot = true prints plot of the path taken
-% by (only works the linear program has 2 nonslack/nonsurplus decision variables)
+% @MAGGIE 
+% opt_plot = true prints plot if 2 nonslack/nonsurplus decision variables
+% opt_plot = false no plot print
+% --> EXAMPLE FUNCTION CALLS WITH/WITHOUT OPT_PLOT
+% --> also update sample call up above(?)
 % ie: [sol,val] = simplex(c,A,b,true) 
-%
-% An input of opt_plot = false means no plot will be printed 
-% ie: [sol,val] = simplex(c,A,b) is valid. same as [sol,val] = simplex(c,A,b,false). 
-% opt_plot defaults to FALSE if not passed in 
-%
-% This function returns the optimal solution, optimal value
-% (as a vector),  and the plot(if requested) of the path taken to the optimal value, 
-% to the given linear program. 
+% ie: [sol,val] = simplex(c,A,b) is valid. same as [sol,val] =
+% simplex(c,A,b,false). opt_plot defaults to FALSE if not passed in 
 %
 %   See also SIMPLEX>SIMPLEX_SOLVE
 
@@ -70,29 +80,22 @@ end
 function bool = isCompat(dim_c,dim_A,dim_b)
 %ISCOMPAT checks dimension compatibility of input matrix & vectors
 %
-% bool = ISCOMPAT(dim_c, dim_A, dim_b) This function requires the an input
-% of dimensions of the vector c, matrix A, and vector b. 
+% bool = ISCOMPAT(dim_c, dim_A, dim_b) determines the dimensions compatibility
+%and returns whether it is true or false if the dimensions of
+%the input vectors c, and b, and the matrix A are compatible. 
 %
-% expected dimensions of c are: n x 1
-% expected dimensions of A are: m x n
-% expected dimensions of b are: m x 1
-%
-% This function determines the dimensions compatibility
-%  
-% Returns whether it is true or false if the dimensions of
-% the input vectors c, and b, and the matrix A are compatible
+%expected dimensions of c are: [n,1]
+%expected dimensions of A are: [m,n]
+%expected dimensions of b are: [m,1]
 
 bool = (dim_c(2)==1 && dim_b(2)==1 && dim_c(1)==dim_A(2) && dim_b(1)==dim_A(1));
 end
 
 
 function origin = calcOrigin(b,n,m)
-%CALCORIGIN computes the origin of the linear program
+%CALCORIGIN  computes the origin of the linear program
 %
-% origin = CALCORIGIN(b,n,m) This function requires an input of the vector b and 
-% the number of variables (n) and the number of constraints (m).
-%
-% This function determines/returns the origin of the linear program
+% origin = CALCORIGIN(b,n,m) looks at the vector b and determines/returns the origin of the linear program
 %
 origin = zeros(n,1); % first n-m are zero
 for i = (n-m+1):n
@@ -100,22 +103,24 @@ for i = (n-m+1):n
     %i-(n-m)
     origin(i,1) = b(i-(n-m),1);
 end
+%The program must be feasible at the origin for this code to work
+for i = 1:length(origin)
+    if origin(i) < 0
+        error_msg2 = 'Error: Program is infeasible';
+        error(sprintf(error_msg2)) 
+    end
+end
 end
 
 
 function [B,N] = calcBases(A,n,m,basics,nonbasics)
 %CALCBASES calculates basis B and matrix N given input arguments
 %
-% [B, N] = CALCBASES(A,n,m, basics, nonbasics) This function requires an input of the matrix A
-% the number of variables (n), the number of constraints (m), and the corresponding indicies to the
-% basic and nonbasic variables. 
-% 
-% The function determines which coefficients from the coefficient matrix A corresponds to the basic
-% variables puts them in a matrix B  and determines which b coefficients from 
-% the coefficient matrix A correspond to the nonbasic variables and puts them
-% in a matrix N. 
-%
-% Returns B and N.
+% [B, N] = CALCBASES(A,n,m, basics, nonbasics) determines which 
+%coefficients from the coefficient matrix A corresponds to the basic
+%variables puts them in a matrix B  and determines which b coefficients from 
+%the coefficient matrix A correspond to the nonbasic variables and puts them
+%in a matrix N. Returns B and N.
 %
 B = zeros(m,m); % basis
 for i=1:m
@@ -134,15 +139,10 @@ end
 function [c_B,c_N] = calcObj(c,n,m,basics,nonbasics)
 %CALCOBJ calculates objective function with respect to basic (c_B) / nonbasic variables (c_N)
 %
-% [c_B,c_N] = CALCOBJ(c,n,m,basics,nonbasics) This function requires an input of the vector c,
-% number of variables (n), the number of constraints (m), and the corresponding indicies of the basic and 
-% nonbasic variables in the vector c. T
-% 
-% The function looks at the vector c and takes thecoefficients (from the objective function) 
-% corresponding to the basic variables (indicies) and puts them in a vector c_b and then 
-% takes the coefficients (from the objective function) corresponding to the nonbasic variables (indicies and puts them in a vector c_N). 
-% 
-% Returns the two vectors c_B and c_N.
+% [c_B,c_N] = CALCOBJ(c,n,m,basics,nonbasics) looks at the vector c and takes the
+%coefficients (from the objective function) corresponding to the basic variables and puts them 
+%in a vector c_b and then takes the coefficients (from the objective function) corresponding to the
+%nonbasic variables and puts them in a vector c_N. Returns the two vectors c_B and c_N.
 %
 c_B = zeros(m,1);
 c_N = zeros(n-m,1);
@@ -160,19 +160,9 @@ end
 function [final_sol,histx,histy] = simplex_solve(c,A,b,n,m)
 %SIMPLEX_SOLVE This is the main simplex algorithm
 %
-% [final_sol, histx, histy] = SIMPLEX_SOLVE(c,A,b,n,m) 
-% The function requires an input of a vector c, matrix A, a vector b, 
-% number of variables (n), and number of constraints (m). 
-%
-% This function follows and actually solves the input program
-% using the simplex algorithm. 
-%
-% Returns the final optimal solution (final_sol) and a 
-% list of intermediate solutions at each step of the simplex algorithm
-% (histx, histy).
-%
-% The function will produce an error if the linear program is found
-% to be infeasible or unbounded.
+% final_sol = SIMPLEX_SOLVE(c,A,b,n,m) This function follows and actually solbes the input program
+%using the simplex algorithm
+%and returns the final optimal solution
 %
 %   See also SIMPLEX>CALCORIGIN, SIMPLEX>CALCBASEs, SIMPLEX>CALCOBJ
 
@@ -222,8 +212,8 @@ while true
         %% Step 4: Compute maximum step size
         % check for unboundedness
         if simp_dir >= 0
-            %UNBOUNDED, return an error message because linear program has
-            %an infeasible solution
+            %UNBOUNDED, return an error message because the simplex
+            %direction has all nononegative values
             error_msg = "Error: Program is unbounded";
             error(sprintf(error_msg));
             return;
@@ -279,5 +269,3 @@ while true
     end
 end % end while %
 end % end function %
-
-  
