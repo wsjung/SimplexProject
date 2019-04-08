@@ -92,13 +92,24 @@ function origin = calcOrigin(b,n,m)
 % origin = CALCORIGIN(b,n,m) This function requires an input of the vector b and 
 % the number of variables (n) and the number of constraints (m).
 %
-% This function determines/returns the origin of the linear program
+% The origin corresponds to the solution with the first n - m 
+% decision variables set to zero and the last m decision variables 
+% set equal to b
+%
+% This function determines/returns the origin of the linear program and
+% checks for program feasiblity
 %
 origin = zeros(n,1); % first n-m are zero
 for i = (n-m+1):n
     %i
     %i-(n-m)
     origin(i,1) = b(i-(n-m),1);
+end
+for i = 1:length(origin)
+   if origin(i) < 0
+       error_msg2 = 'Error: Program is infeasible';
+       error(sprintf(error_msg2))
+   end
 end
 end
 
@@ -222,8 +233,8 @@ while true
         %% Step 4: Compute maximum step size
         % check for unboundedness
         if simp_dir >= 0
-            %UNBOUNDED, return an error message because linear program has
-            %an infeasible solution
+            %UNBOUNDED, return an error message because 
+            %simplex direction has all nonnegative values
             error_msg = "Error: Program is unbounded";
             error(sprintf(error_msg));
             return;
